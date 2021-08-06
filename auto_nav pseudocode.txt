@@ -1,0 +1,67 @@
+#!/usr/bin/env python
+
+Above: If you have several versions of Python installed, /usr/bin/env will ensure the interpreter used is the first one on your environment's $PATH.
+
+python imports:
+	rospy 
+	geometry_msgs -> Twist()
+	sensor_msgs -> LaserScan
+
+
+initialize velocoties 
+burger lin =.22, angle = 2.84
+waffle lin = .26 angle = 1.8
+
+lin step size = .01 
+ang = .1
+
+dangerZone = []  #range of obstacele in front of turtlebot3 where collision must be avoided (based on tb width up to .7m ahead) 
+
+extremeDangerZone = [] #range of obstacle too close to turtlebot, will stop forward movement at this time
+
+def isObstacle():
+	if noDanger:
+		return 0
+	elif object in extremeDangerZone:
+		return 1
+	elif object in DangerZone:
+		return 2
+	
+
+def redirect():
+	slower linear velocity (80%)
+	increase angular velocity (left) slowly 
+	keep obstacle to the right turn left until object not in danger zone 
+
+def extremeDanger():
+	liner velocity = 0 
+	angular = 50% 
+	
+	
+def noObstacle():
+	fullspeed ahead 
+	angular speed 0
+
+
+
+if __name__=="__main__":
+	initialize publisher to /cmd_vel 
+	intialize subscriber to /scan 
+	twist variable 
+	scan variable 
+	
+	while (ros not shutdown):
+		subscribe to /scan
+		mode = isObstacle()
+		if mode == 0:
+			twist = noObstacle()
+		if mode == 1:
+			twist = redirect()
+		if mode == 2
+			twist = extremeDanger()
+		publish to /cmd_vel
+			
+			
+	
+
+

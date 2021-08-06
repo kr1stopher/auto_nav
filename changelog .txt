@@ -1,0 +1,11 @@
+Changelog 
+
+8/5
+	package created
+	CMakeLists Changes:
+		find packge sensor_msgs; CATKIN_DEPENDS sensor_msgs
+	package.xml
+		basic info & depends sensor_msgs
+	updated name autoNav to auto_nav for naming conventions 
+
+

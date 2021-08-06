@@ -1,0 +1,17 @@
+<?xml version="2.0"?>
+<package format="2">
+  <name>auto_nav</name>
+  <version>1.0.0</version>
+  <description>
+    Package for autopilot navigtion of turtlebot3 with basic functionality
+    Future versions to act as roomba-like navigation covering most points on a given map
+  </description>
+  <license>BSD</license>
+  <author>Kris Swartzbaugh</author>
+  <author email="swartzbaugh.k@gmail.com">Kris</author>
+  <maintainer email = "swartzbaugh.k@gmail.com">Kris Swartzbaugh</maintainer>
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>rospy</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+</package>
