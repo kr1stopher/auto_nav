@@ -1,1 +1,88 @@
 #! /usr/bin/env python
+
+import rospy
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
+from math import atan
+from math import ceil
+
+
+
+#set Max linear and angular velocities based on turtlebot model
+if (rospy.get_param('MODEL', 'waffle')== 'waffle'):
+    linMax = .26
+    angMax =1.8
+    width = .306
+if (rospy.get_param('model', 'waffle')== 'burger'):
+    linMax = .22
+    angMax = 1.8
+    width = .178
+
+#linear and angular velocity increment step size
+linInc = .01
+angInc = .1
+dangerDistance = .7
+
+#range of obstable in front of turtlebot must be avoided (up to .7m away from turtlebot, based on width)
+theta = 2*atan(width/(2*dangerDistance))
+#angle for turtlebot3 sensor to see if there is an obstacle less than danger distance ahead up to width of bot
+#centered around pi/2
+sensorStep = 0.017501922324299812 #laser sensor step size
+dangerZone = [180 - ceil(theta/(2*sensorStep)), 180 + ceil(theta/(2*sensorStep))]  #range of indexes to check LaserScan for ojbects <dangerDistance
+
+#range where turtlebot must stop forward motion and only turn in order to aavoid obstable
+extremeDangerZone = []
+
+msg = 'Turtlebot3 will now assume automated navigation'
+#checks LaserScan input to determine if their is an obstable to be avoided and how close the obstable is
+#returns 0 if no danger, 1 in danger zone, 2 for extreme danger
+def isObstacle():
+    pass
+
+#slowly turn while moving forward to avoid objects in danger zone
+def redirect():
+    newTwist  = Twist()
+    newTwist.linear.x = linMax*.8; newTwist.Linear.y = 0; newTwist.linear.z = 0
+    newTwist.angular.x = angMax*.2; newTwist.angular.y = 0; newTwist.angular.z = 0
+    return newTwist
+
+#Stop turtlebot and rotate to avoid objects in extreme danger zone
+def extremeDanger():
+    newTwist  = Twist()
+    newTwist.linear.x = 0; newTwist.Linear.y = 0; newTwist.linear.z = 0
+    newTwist.angular.x = angMax*.4; newTwist.angular.y = 0; newTwist.angular.z = 0
+    return newTwist
+
+#when no obstacles, full speed ahead no angular velocity
+def noObstacle():
+    newTwist  = Twist()
+    newTwist  = Twist()
+    newTwist.angular.x = 0; newTwist.angular.y = 0; newTwist.angular.z = 0    #newTwist.angular.x = 0; newTwist.angular.y = 0; newTwist.angular.z = 0     newTwist.angular.x = 0; newTwist.angular.y = 0; newTwist.angular.z = 0
+    return newTwist
+
+
+if __name__=="__main__":
+    rospy.init_node('auto_nav')
+    pub = rospy.Publisher('cmd_vel', Twist, queue_size = 10)
+    sub = rospy.Subscriber('Scan', LaserScan,queue_size=10)
+    #initialize publishers and subscribers
+    twist = Twist()
+    #twist & scan variables
+    print(msg)
+
+
+    # while(not rospy.is_shutdown()):
+    i=0
+    while(i<10):
+        #input scan
+        mode = isObstacle() #check for obstacle
+        if mode == 0:
+            twist = noObstacle()
+        elif mode == 1:
+            twist = redirect()
+        elif mode == 2:
+            twist = extremeDanger()
+        #noObstacle, redirect, or extremeDanger accordingly
+        #publish to cmd_vel
+        pub.publish(twist)
+        i=i+1

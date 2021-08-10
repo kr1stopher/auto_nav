@@ -7,5 +7,9 @@ Changelog
 	package.xml
 		basic info & depends sensor_msgs
 	updated name autoNav to auto_nav for naming conventions 
-
+	
+8/10 
+	Updated functions redirect, extremeDanger, noObstancle 
+	Updted Main 
+	Added theta, sensorStep, updated dangerZone
 
