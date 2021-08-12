@@ -12,4 +12,9 @@ Changelog
 	Updated functions redirect, extremeDanger, noObstancle 
 	Updted Main 
 	Added theta, sensorStep, updated dangerZone
+	
+8/12
+	Updated Danger indexes 
+	Updated isObstacle 
+	Updated Subscriber 
 
