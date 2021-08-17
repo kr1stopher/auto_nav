@@ -21,8 +21,8 @@ if (rospy.get_param('model', 'waffle')== 'burger'):
 #linear and angular velocity increment step size
 linInc = .01
 angInc = .1
-dangerDistance = .6
-extremeDangerDistance = .25
+dangerDistance = .8
+extremeDangerDistance = .4
 
 mode = 0 #initialize mode to 0 (full speed ahead, no obstacle)
 
@@ -38,33 +38,78 @@ dangerZone = [-ceil(theta/(2*sensorStep)), ceil(theta/(2*sensorStep))]  #range o
 extremeDangerZone = [-ceil(thetaExtreme/(2*sensorStep)), ceil(thetaExtreme/(2*sensorStep))]
 
 msg1 = 'Turtlebot3 will now assume automated navigation'
+
+#takes /scan Message as input, makes decision on if the bot should turn right or left
+def right_or_left(msg):
+    scanZone = [ceil(theta/(2*sensorStep)), 2*ceil(theta/(2*sensorStep))]  #positive range of i's to test determining right or left
+    print(scanZone[0], scanZone[1], 'youre in the zone')
+    result = []
+    i = scanZone[0]
+    print('IM INSIDE THE RIGHT OR LEFT FUNTION')
+    while (i<scanZone[1]):
+        print(i, 'To the left ', msg.ranges[i], type(msg.ranges[i]), msg.ranges[i]==float('inf'))
+        print(-i, 'To the right ', msg.ranges[-i], type(msg.ranges[-i]), msg.ranges[-i]==float('inf'))
+        if msg.ranges[i] == float('inf'):
+            print('the type is as follows', type(msg.ranages[i]), 'and the value is ', msg.ranges[i])
+            i1 = 5
+        else:
+            i1 = msg.ranges[i]
+        if msg.ranges[-i]==float('inf'):
+            print('the type is as follows', type(msg.ranges[i]), 'and the value is ', msg.ranges[i])
+            i2 = 5
+        else:
+            i2 = msg.ranges[-i]
+        if (i1 == float('inf') or i2 == float('inf')):
+            print('You done fucked up son')
+        result.append(i1 - i2)
+        i=i+1
+    average = sum(result)/len(result)   #check to see if the left or right looks more clear
+    print('THE VALUE OF THE AVERAGE IS ', average)
+    #print('mode ', mode)
+    if average > 0:
+        return 'left'
+    elif average < 0:
+        return 'right'
+
 #checks LaserScan input to determine if their is an obstable to be avoided and how close the obstable is
 #returns 0 if no danger, 1 in danger zone, 2 for extreme danger
 def isObstacle(msg):
     global mode, dangerZone, extremeDangerZone
-    i = extremeDangerZone[0]
+    j = extremeDangerZone[0]
     dangerDetected = False #keeps track if any obstacle was found
-    while (i<extremeDangerZone[1]):
-        print('i is: ',i, " and distance is: ", msg.ranges[i])
-        print(type(msg.ranges[i]),type(dangerDistance))
-        if (msg.ranges[i]<extremeDangerDistance):
+    while (j<extremeDangerZone[1]):
+        if (msg.ranges[j]<extremeDangerDistance):
             print('extremeDanger')
             mode = 2
             dangerDetected = True
-        elif (msg.ranges[i]<dangerDistance and i>dangerZone[0] and i<dangerZone[1]):
-            print('inside v2')
-            mode = 2 #change to 1 later
+        elif (msg.ranges[j]<dangerDistance and j>dangerZone[0] and j<dangerZone[1]):
+            print('Moderate Danger')
+            #check to see if left side or right side is more clear
+                   #right -> mode =1.5 turn right
+            if right_or_left(msg)=='left':
+                mode = 1
+            else:
+                mode = 1.5
             dangerDetected = True
-        i=i+1
+        j=j+1
     if not dangerDetected:
         mode = 0
-    print('im inside')
+    print('mode', mode)
+    print(dangerDetected)
+
+
 
 #slowly turn while moving forward to avoid objects in danger zone
+def redirectRight():
+    newTwist  = Twist()
+    newTwist.linear.x = linMax*.7; newTwist.linear.y = 0; newTwist.linear.z = 0
+    newTwist.angular.x = 0; newTwist.angular.y = 0; newTwist.angular.z = - angMax*.25
+    return newTwist
+
 def redirect():
     newTwist  = Twist()
-    newTwist.linear.x = linMax*.8; newTwist.linear.y = 0; newTwist.linear.z = 0
-    newTwist.angular.x = angMax*.1; newTwist.angular.y = 0; newTwist.angular.z = 0
+    newTwist.linear.x = linMax*.7; newTwist.linear.y = 0; newTwist.linear.z = 0
+    newTwist.angular.x = 0; newTwist.angular.y = 0; newTwist.angular.z = angMax*.25
     return newTwist
 
 #Stop turtlebot and rotate to avoid objects in extreme danger zone
@@ -74,12 +119,24 @@ def extremeDanger():
     newTwist.angular.x = 0; newTwist.angular.y = 0; newTwist.angular.z = angMax*.4
     return newTwist
 
+
+#Stop turtlebot and rotate to avoid objects in extreme danger zone
+def extremeDangerRight():
+    newTwist  = Twist()
+    newTwist.linear.x = 0; newTwist.linear.y = 0; newTwist.linear.z = 0
+    newTwist.angular.x = 0; newTwist.angular.y = 0; newTwist.angular.z = -angMax*.4
+    return newTwist
+
 #when no obstacles, full speed ahead no angular velocity
 def noObstacle():
     newTwist  = Twist()
     newTwist.linear.x = linMax; newTwist.linear.y = 0; newTwist.linear.z = 0
     newTwist.angular.x = 0; newTwist.angular.y = 0; newTwist.angular.z = 0    #newTwist.angular.x = 0; newTwist.angular.y = 0; newTwist.angular.z = 0     newTwist.angular.x = 0; newTwist.angular.y = 0; newTwist.angular.z = 0
     return newTwist
+
+
+
+
 
 
 if __name__=="__main__":
@@ -95,10 +152,11 @@ if __name__=="__main__":
     # while(not rospy.is_shutdown()):
     i=0
     #while(not rospy.is_shutdown()):
-    r = rospy.Rate(3)
+    r = rospy.Rate(10)
     while(1):
     #while(i<10):
-        sub = rospy.Subscriber('/scan', LaserScan, isObstacle)
+        # sub = rospy.Subscriber('/scan', LaserScan, isObstacle)
+        mode = 1.5
         print('here is the number of times the loop has been executed', i)
         print('mode: ', mode)
         #input scan
@@ -109,9 +167,15 @@ if __name__=="__main__":
             twist = noObstacle()
         elif mode == 1:
             twist = redirect()
+        elif mode == 1.5:
+            twist = redirectRight()
         elif mode == 2:
             #print('twist = extremeDanger')
             twist = extremeDanger()
+        """
+        elif mode == 2.5:
+            twist = extremeDangerRight()
+        """
         #noObstacle, redirect, or extremeDanger accordingly
         #publish to cmd_vel
         pub.publish(twist)

@@ -18,3 +18,9 @@ Changelog
 	Updated isObstacle 
 	Updated Subscriber 
 
+8/16 
+	Added right_or_left, redirectRight, extremeDangerRight functions 
+	updated is obstacle 
+	updated redirect 
+	Note: later combine redirectRight & Redirect as well as extremeDanger & ExtremeDanger right no need for seperate functions
+	
