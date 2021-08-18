@@ -3,8 +3,7 @@
   <name>auto_nav</name>
   <version>1.0.0</version>
   <description>
-    Package for autopilot navigtion of turtlebot3 with basic functionality
-    Future versions to act as roomba-like navigation covering most points on a given map
+    Package for autopilot navigtion of turtlebot3 with basic functionality. Avoids obstacles, decides whether to go right or left based on "openness" of each direction. 
   </description>
   <license>BSD</license>
   <author>Kris Swartzbaugh</author>

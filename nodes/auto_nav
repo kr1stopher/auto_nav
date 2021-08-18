@@ -80,7 +80,10 @@ def isObstacle(msg):
     while (j<extremeDangerZone[1]):
         if (msg.ranges[j]<extremeDangerDistance):
             print('extremeDanger')
-            mode = 2
+            if right_or_left(msg) == 'left':
+                mode = 2
+            else:
+                mode = 2.5
             dangerDetected = True
         elif (msg.ranges[j]<dangerDistance and j>dangerZone[0] and j<dangerZone[1]):
             print('Moderate Danger')
