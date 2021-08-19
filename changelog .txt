@@ -24,3 +24,10 @@ Changelog
 	updated redirect 
 	Note: later combine redirectRight & Redirect as well as extremeDanger & ExtremeDanger right no need for seperate functions
 	
+8/19 
+	Updated main
+	Updated isObstacle 
+	added safety_factor and extreme_safety_factor
+	Increased danger distance and extremeDangerDistance 
+	Note:
+		isOstacle() needs to look at the  big picture better, currently favors msg.ranges[j] where j = extremeDangerZone[i] as it is the last one in the loop 
